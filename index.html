@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบบันทึกคะแนนและกิจกรรม - สำนักพระราชวัง</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Font: Sarabun -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --royal-gold: #C5A059;
+            --royal-gold-dark: #9A7B3F;
+            --royal-dark: #2C3E50;
+            --royal-bg: #F0F2F5;
+            --radius-lg: 15px;
+            --radius-md: 10px;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: var(--royal-bg);
+            color: #333;
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, var(--royal-dark) 0%, #1a252f 100%);
+            color: white;
+            padding: 2.5rem 0;
+            border-bottom: 5px solid var(--royal-gold);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+
+        .header-title {
+            font-weight: 700;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .main-container {
+            max-width: 900px;
+            margin: -30px auto 3rem auto;
+            padding: 0 15px;
+        }
+
+        .card-custom {
+            border: none;
+            border-radius: var(--radius-lg) !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            background-color: white;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .card-header-custom {
+            background-color: var(--royal-gold);
+            color: white;
+            font-weight: 600;
+            padding: 1.2rem 1.5rem;
+            border: none;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--royal-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control, .form-select {
+            border: 1px solid #dee2e6;
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1rem;
+        }
+
+        .btn-gold {
+            background-color: var(--royal-gold);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            transition: all 0.3s ease;
+        }
+
+        .btn-gold:hover {
+            background-color: var(--royal-gold-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(197, 160, 89, 0.3);
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.75rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            color: white;
+        }
+
+        .dot {
+            height: 8px; width: 8px;
+            background-color: #2ecc71;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .pulse { animation: pulse-animation 2s infinite; }
+
+        @keyframes pulse-animation {
+            0% { box-shadow: 0 0 0 0px rgba(46, 204, 113, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(46, 204, 113, 0); }
+            100% { box-shadow: 0 0 0 0px rgba(46, 204, 113, 0); }
+        }
+
+        #adminSection { display: none; margin-top: 2rem; }
+    </style>
+</head>
+<body>
+
+    <header class="header-section">
+        <div class="container">
+            <h1 class="header-title">ระบบบันทึกคะแนนและกิจกรรม (EXP System)</h1>
+            <p class="header-subtitle mb-0">ศูนย์เทคโนโลยีดิจิทัล - สำนักพระราชวัง</p>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div id="userSection">
+            <div class="card card-custom">
+                <div class="card-header-custom">
+                    <i class="bi bi-pencil-square me-2"></i> บันทึกข้อมูลการปฏิบัติงาน
+                </div>
+                <div class="card-body p-4">
+                    <form id="activityForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">ชื่อผู้ใช้ (Username)</label>
+                                <input type="text" class="form-control" id="username" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">ระดับ (Level)</label>
+                                <select class="form-select" id="level" required>
+                                    <option value="" selected disabled>เลือก...</option>
+                                    <option value="C1">C1</option><option value="C2">C2</option>
+                                    <option value="C3">C3</option><option value="C4">C4</option>
+                                    <option value="C5">C5</option><option value="C6">C6</option>
+                                    <option value="C7">C7</option><option value="C8">C8</option>
+                                    <option value="C9">C9</option><option value="C10">C10</option>
+                                    <option value="C11">C11</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">สังกัด / กอง</label>
+                                <input type="text" class="form-control" id="department" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">งานหรือกิจกรรมที่ทำ</label>
+                                <input type="text" class="form-control" id="task" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">วันที่</label>
+                                <input type="date" class="form-control" id="dateInput" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">เวลา</label>
+                                <input type="time" class="form-control" id="timeInput" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">สถานที่</label>
+                                <input type="text" class="form-control" id="location" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">คะแนน EXP ที่ได้รับ</label>
+                                <input type="number" class="form-control" id="exp" required min="0">
+                            </div>
+                            <div class="col-12 text-center mt-4">
+                                <button type="submit" id="submitBtn" class="btn btn-gold w-100 py-3">
+                                    <i class="bi bi-send-fill me-2"></i>บันทึกข้อมูลทันที
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card card-custom">
+                <div class="card-header-custom bg-secondary d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-clock-history me-2"></i>รายการล่าสุด (20 รายการ)</span>
+                    <div class="status-indicator">
+                        <span class="dot pulse"></span>
+                        <span>Live Online</span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 text-center">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ว/ด/ป เวลา</th>
+                                    <th>ชื่อ</th>
+                                    <th>กิจกรรม</th>
+                                    <th>EXP</th>
+                                </tr>
+                            </thead>
+                            <tbody id="liveFeedBody">
+                                <tr><td colspan="4" class="py-4 text-muted">กำลังรอการเชื่อมต่อฐานข้อมูล...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="adminSection">
+            <div class="card card-custom">
+                <div class="card-header-custom bg-dark d-flex justify-content-between">
+                    <span>Admin Dashboard</span>
+                    <button class="btn btn-sm btn-outline-light" onclick="location.reload()">ออกจากหน้า Admin</button>
+                </div>
+                <div class="card-body p-4">
+                    <h5 class="mb-3 fw-bold text-gold"><i class="bi bi-trophy-fill"></i> อันดับสะสมคะแนนรวม</h5>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-bordered text-center align-middle">
+                            <thead class="table-light">
+                                <tr><th>อันดับ</th><th>ชื่อ</th><th>สังกัด</th><th>รวม EXP</th></tr>
+                            </thead>
+                            <tbody id="leaderboardBody"></tbody>
+                        </table>
+                    </div>
+                    <h5 class="mb-3 fw-bold text-gold"><i class="bi bi-table"></i> ข้อมูลดิบทั้งหมด</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped text-center align-middle">
+                            <thead>
+                                <tr><th>วันที่</th><th>ชื่อ</th><th>งาน</th><th>EXP</th><th>Action</th></tr>
+                            </thead>
+                            <tbody id="adminDataBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4 pb-5">
+            <small class="text-muted">© 2026 ศูนย์เทคโนโลยีดิจิทัล - สำนักพระราชวัง</small>
+            <br>
+            <a id="adminLoginBtn" class="text-decoration-none text-muted" style="font-size: 0.7rem; cursor: pointer;">
+                <i class="bi bi-shield-lock"></i> Admin Login
+            </a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit, doc, updateDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        // ------------------------------------------------------------------
+        // 🔥 สำคัญ: ต้องใส่ Config จาก Firebase Console ของคุณตรงนี้เท่านั้น!
+        // ------------------------------------------------------------------
+        const firebaseConfig = {
+  apiKey: "AIzaSyB5IE2qSEy_HJvvK5MYj1Lt-iHv083IKzk",
+  authDomain: "brh-tawanpanzer-score.firebaseapp.com",
+  projectId: "brh-tawanpanzer-score",
+  storageBucket: "brh-tawanpanzer-score.firebasestorage.app",
+  messagingSenderId: "521659968185",
+  appId: "1:521659968185:web:dc6ebcf687059683624968"
+};
+
+        let db;
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            console.log("Firebase initialized successfully");
+        } catch (e) {
+            console.error("Firebase init error:", e);
+            alert("ไม่สามารถเชื่อมต่อ Firebase ได้ ตรวจสอบ Config ในโค้ด");
+        }
+
+        const COLL = "activities";
+
+        // Initial Form Setup
+        window.addEventListener('load', () => {
+            const now = new Date();
+            document.getElementById('dateInput').valueAsDate = now;
+            document.getElementById('timeInput').value = now.toTimeString().slice(0,5);
+        });
+
+        // Submit Action
+        const form = document.getElementById('activityForm');
+        const submitBtn = document.getElementById('submitBtn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (firebaseConfig.apiKey.includes("ใส่_API_KEY")) {
+                alert("กรุณาติดตั้ง Firebase Config ในโค้ดก่อนใช้งานจริงครับ");
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>กำลังส่งข้อมูล...';
+
+            const payload = {
+                username: document.getElementById('username').value,
+                level: document.getElementById('level').value,
+                department: document.getElementById('department').value,
+                task: document.getElementById('task').value,
+                date: document.getElementById('dateInput').value,
+                time: document.getElementById('timeInput').value,
+                location: document.getElementById('location').value,
+                exp: parseInt(document.getElementById('exp').value),
+                timestamp: new Date()
+            };
+
+            try {
+                await addDoc(collection(db, COLL), payload);
+                alert("✅ บันทึกข้อมูลความดีสำเร็จ!");
+                form.reset();
+                // Reset Date/Time back to current
+                const d = new Date();
+                document.getElementById('dateInput').valueAsDate = d;
+                document.getElementById('timeInput').value = d.toTimeString().slice(0,5);
+            } catch (err) {
+                alert("❌ บันทึกไม่สำเร็จ: " + err.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="bi bi-send-fill me-2"></i>บันทึกข้อมูลทันที';
+            }
+        });
+
+        // Real-time Update (Live Feed)
+        onSnapshot(query(collection(db, COLL), orderBy("timestamp", "desc"), limit(20)), (snapshot) => {
+            const liveFeed = document.getElementById('liveFeedBody');
+            let rows = "";
+            snapshot.forEach(doc => {
+                const d = doc.data();
+                rows += `
+                    <tr>
+                        <td><small>${d.date}<br>${d.time}</small></td>
+                        <td>${d.username} <span class="badge bg-light text-dark border">${d.level}</span></td>
+                        <td class="text-start">${d.task}</td>
+                        <td class="fw-bold text-success">+${d.exp}</td>
+                    </tr>
+                `;
+            });
+            liveFeed.innerHTML = rows || '<tr><td colspan="4" class="py-4 text-muted">ยังไม่มีรายการบันทึก</td></tr>';
+        }, (error) => {
+            console.error("Snapshot error:", error);
+        });
+
+        // Admin Auth & Dash
+        document.getElementById('adminLoginBtn').onclick = () => {
+            const pass = prompt("รหัสผ่าน Admin:");
+            if (pass === "admin999") {
+                document.getElementById('userSection').style.display = 'none';
+                document.getElementById('adminSection').style.display = 'block';
+                loadAdminDashboard();
+            } else if (pass !== null) {
+                alert("รหัสผ่านไม่ถูกต้อง");
+            }
+        };
+
+        async function loadAdminDashboard() {
+            const snap = await getDocs(query(collection(db, COLL), orderBy("timestamp", "desc")));
+            let adminRows = "";
+            let summary = {}; // User-based sum
+
+            snap.forEach(d => {
+                const data = d.data();
+                const id = d.id;
+                
+                adminRows += `
+                    <tr>
+                        <td><small>${data.date}</small></td>
+                        <td>${data.username}</td>
+                        <td>${data.task}</td>
+                        <td class="fw-bold">${data.exp}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-warning me-1" onclick="editEXP('${id}', ${data.exp})"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRec('${id}')"><i class="bi bi-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+
+                if (!summary[data.username]) summary[data.username] = { exp: 0, dept: data.department };
+                summary[data.username].exp += data.exp;
+            });
+
+            document.getElementById('adminDataBody').innerHTML = adminRows;
+
+            // Render Leaderboard
+            const sorted = Object.entries(summary).sort((a,b) => b[1].exp - a[1].exp);
+            document.getElementById('leaderboardBody').innerHTML = sorted.map((u, i) => `
+                <tr>
+                    <td class="fw-bold">#${i+1}</td>
+                    <td>${u[0]}</td>
+                    <td>${u[1].dept}</td>
+                    <td class="text-success fw-bold">${u[1].exp}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Window exposed functions for Admin Actions
+        window.editEXP = async (id, oldVal) => {
+            const newVal = prompt("ใส่คะแนนใหม่:", oldVal);
+            if (newVal !== null && !isNaN(newVal)) {
+                await updateDoc(doc(db, COLL, id), { exp: parseInt(newVal) });
+                alert("แก้ไขคะแนนสำเร็จ");
+                loadAdminDashboard();
+            }
+        };
+
+        window.deleteRec = async (id) => {
+            if (confirm("ยืนยันการลบรายการนี้ถาวร?")) {
+                await deleteDoc(doc(db, COLL, id));
+                alert("ลบสำเร็จ");
+                loadAdminDashboard();
+            }
+        };
+
+    </script>
+</body>
+</html>
